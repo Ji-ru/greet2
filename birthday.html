@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes bounce {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-10px); }
+        }
+        @keyframes confetti {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+        }
+        @keyframes smoke {
+            0% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-30px); }
+        }
+        .confetti {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 10px;
+            height: 10px;
+            background-color: #ff0066;
+            animation: confetti 3s linear infinite;
+            z-index: -1;
+        }
+        .smoke {
+            font-size: 30px;
+            opacity: 1;
+            animation: smoke 2s forwards;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100px;
+        }
+        .hidden {
+            display: none;
+        }
+        .floating-image {
+            position: absolute;
+            width: 150px;
+            border-radius: 20px;
+        }
+    </style>
+</head>
+<body class="bg-pink-300 flex flex-col items-center justify-center min-h-screen text-center font-sans p-4 relative overflow-hidden">
+    <div class="absolute inset-0" id="confetti-container"></div>
+    <div class="max-w-lg w-full relative z-10">
+        <h1 id="blow-message" class="text-3xl sm:text-5xl text-pink-600 animate-bounce">🎂 Blow the candle! 💨</h1>
+        
+        <div class="relative text-6xl sm:text-8xl my-5 flex justify-center" id="cake">🎂</div>
+        
+        <div id="message-container" class="hidden">
+            <h1 class="text-3xl sm:text-5xl text-pink-600 animate-bounce">🎉 Happy Birthday! 🎂</h1>
+            <p class="text-lg sm:text-2xl text-gray-700">Wishing you a day filled with love, joy, and lots of cake! 🎁🎈</p>
+        </div>
+
+        <div id="gif-container" class="flex justify-center hidden">
+            <div id="gif" class="tenor-gif-embed my-5 rounded-[20px]" data-postid="7987611779846385544" data-share-method="host" data-aspect-ratio="1" data-width="300px"></div>
+        </div>
+        <script type="text/javascript" async src="https://tenor.com/embed.js"></script>
+        
+        <div id="floating-images" class="hidden">
+            <img src="{{ asset('storage/maloi.jpg') }}" class="floating-image">
+            <img src="{{ asset('storage/1st.jpg') }}" class="floating-image" style="width: 100px; height: 100px;">
+            <img src="{{ asset('storage/group.jpg') }}" class="floating-image">
+        </div>
+        
+        <audio id="birthday-music" src="{{ asset('storage/bday-song.mp3') }}" preload="auto"></audio>
+    </div>
+    
+    <script>
+        function createConfetti() {
+            const confetti = document.createElement("div");
+            confetti.classList.add("confetti");
+            document.getElementById("confetti-container").appendChild(confetti);
+            confetti.style.left = Math.random() * 100 + "vw";
+            confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+            confetti.style.animationDuration = Math.random() * 2 + 2 + "s";
+            setTimeout(() => confetti.remove(), 3000);
+        }
+
+        function startConfetti() {
+            setInterval(createConfetti, 200);
+        }
+
+        function animateFloatingImages() {
+            document.querySelectorAll(".floating-image").forEach(img => {
+                let x = Math.random() * window.innerWidth;
+                let y = Math.random() * window.innerHeight;
+                let dx = (Math.random() - 0.5) * 4;
+                let dy = (Math.random() - 0.5) * 4;
+                
+                img.style.position = "absolute";
+                img.style.left = `${x}px`;
+                img.style.top = `${y}px`;
+                
+                function move() {
+                    x += dx;
+                    y += dy;
+                    if (x <= 0 || x + img.width >= window.innerWidth) dx *= -1;
+                    if (y <= 0 || y + img.height >= window.innerHeight) dy *= -1;
+                    img.style.left = `${x}px`;
+                    img.style.top = `${y}px`;
+                    requestAnimationFrame(move);
+                }
+                move();
+            });
+        }
+
+        async function detectBlow() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const analyser = audioContext.createAnalyser();
+                const microphone = audioContext.createMediaStreamSource(stream);
+                microphone.connect(analyser);
+                analyser.fftSize = 256;
+                const dataArray = new Uint8Array(analyser.frequencyBinCount);
+                
+                function checkBlow() {
+                    analyser.getByteFrequencyData(dataArray);
+                    let volume = dataArray.reduce((a, b) => a + b) / dataArray.length;
+                    if (volume > 150) {
+                        blowCake();
+                    }
+                    requestAnimationFrame(checkBlow);
+                }
+                checkBlow();
+            } catch (error) {
+                console.error("Microphone access denied or unavailable.", error);
+            }
+        }
+
+        function blowCake() {
+            document.getElementById("cake").innerHTML = "💨";
+            document.getElementById("blow-message").classList.add("hidden");
+            setTimeout(() => {
+                document.getElementById("message-container").classList.remove("hidden");
+                document.getElementById("gif-container").classList.remove("hidden");
+                document.getElementById("floating-images").classList.remove("hidden");
+                startConfetti();
+                animateFloatingImages();
+                document.getElementById("birthday-music").play();
+            }, 2000);
+        }
+
+        detectBlow();
+    </script>
+</body>
+</html>
