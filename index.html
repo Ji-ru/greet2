@@ -113,16 +113,8 @@
         }
 
         async function requestMicPermission() {
-    try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        console.log("Microphone permission granted.");
-        detectBlow();
-    } catch (error) {
-        console.error("Microphone access denied or unavailable.", error);
-        alert("Microphone permission is required to blow the candle. Please allow microphone access.");
-        requestMicPermission(); // Keep asking until granted
-    }
-});
+            try {
+                await navigator.mediaDevices.getUserMedia({ audio: true });
                 console.log("Microphone permission granted.");
                 detectBlow();
             } catch (error) {
