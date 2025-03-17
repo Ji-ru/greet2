@@ -66,7 +66,7 @@
         
         <div id="floating-images" class="hidden">
             <img src="storage/maloi.jpg" class="floating-image">
-            <img src="storage/1st.jpg" class="floating-image" style="width: 100px; height: 100px;">
+            <img src="storage/1st.jpg" class="floating-image">
             <img src="storage/group.jpg" class="floating-image">
         </div>
         
@@ -92,8 +92,8 @@
             document.querySelectorAll(".floating-image").forEach(img => {
                 let x = Math.random() * window.innerWidth;
                 let y = Math.random() * window.innerHeight;
-                let dx = (Math.random() - 0.5) * 4;
-                let dy = (Math.random() - 0.5) * 4;
+                let dx = (Math.random() - 0.5) * 6;
+                let dy = (Math.random() - 0.5) * 6;
                 
                 img.style.position = "absolute";
                 img.style.left = `${x}px`;
@@ -112,27 +112,14 @@
             });
         }
 
-        async function detectBlow() {
+        async function requestMicPermission() {
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                const analyser = audioContext.createAnalyser();
-                const microphone = audioContext.createMediaStreamSource(stream);
-                microphone.connect(analyser);
-                analyser.fftSize = 256;
-                const dataArray = new Uint8Array(analyser.frequencyBinCount);
-                
-                function checkBlow() {
-                    analyser.getByteFrequencyData(dataArray);
-                    let volume = dataArray.reduce((a, b) => a + b) / dataArray.length;
-                    if (volume > 150) {
-                        blowCake();
-                    }
-                    requestAnimationFrame(checkBlow);
-                }
-                checkBlow();
+                await navigator.mediaDevices.getUserMedia({ audio: true });
+                console.log("Microphone permission granted.");
+                detectBlow();
             } catch (error) {
                 console.error("Microphone access denied or unavailable.", error);
+                alert("Microphone permission is required to blow the candle.");
             }
         }
 
@@ -149,7 +136,7 @@
             }, 2000);
         }
 
-        detectBlow();
+        requestMicPermission();
     </script>
 </body>
 </html>
