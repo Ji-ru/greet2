@@ -65,9 +65,9 @@
         <script type="text/javascript" async src="https://tenor.com/embed.js"></script>
         
         <div id="floating-images" class="hidden">
-            <img src="storage/maloi.jpg" class="floating-image">
-            <img src="storage/1st.jpg" class="floating-image" style="width: 100px; height: 100px;">
-            <img src="storage/group.jpg" class="floating-image">
+            <img src="{{ asset('storage/maloi.jpg') }}" class="floating-image">
+            <img src="{{ asset('storage/1st.jpg') }}" class="floating-image" style="width: 100px; height: 100px;">
+            <img src="{{ asset('storage/group.jpg') }}" class="floating-image">
         </div>
         
         <audio id="birthday-music" src="{{ asset('storage/bday-song.mp3') }}" preload="auto"></audio>
@@ -79,7 +79,7 @@
             confetti.classList.add("confetti");
             document.getElementById("confetti-container").appendChild(confetti);
             confetti.style.left = Math.random() * 100 + "vw";
-            confetti.style.backgroundColor = hsl(${Math.random() * 360}, 100%, 50%);
+            confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
             confetti.style.animationDuration = Math.random() * 2 + 2 + "s";
             setTimeout(() => confetti.remove(), 3000);
         }
@@ -96,16 +96,16 @@
                 let dy = (Math.random() - 0.5) * 4;
                 
                 img.style.position = "absolute";
-                img.style.left = ${x}px;
-                img.style.top = ${y}px;
+                img.style.left = `${x}px`;
+                img.style.top = `${y}px`;
                 
                 function move() {
                     x += dx;
                     y += dy;
                     if (x <= 0 || x + img.width >= window.innerWidth) dx *= -1;
                     if (y <= 0 || y + img.height >= window.innerHeight) dy *= -1;
-                    img.style.left = ${x}px;
-                    img.style.top = ${y}px;
+                    img.style.left = `${x}px`;
+                    img.style.top = `${y}px`;
                     requestAnimationFrame(move);
                 }
                 move();
